@@ -659,8 +659,14 @@ def get_sqlalchemy_type(field: Any) -> Any:
     metadata = get_field_metadata(field)
 
     # Check enums first as an enum can also be a str, needed by Pydantic/FastAPI
-    if issubclass(type_, Enum):
-        return sa_Enum(type_)
+    try:
+        isc = issubclass(type_, Enum)
+    except TypeError as e :
+        raise TypeError(f"not a class: {type_}") from e
+    else:
+        if isc:
+            return sa_Enum(type_)
+
     if issubclass(
         type_,
         (
